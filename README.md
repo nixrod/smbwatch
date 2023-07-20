@@ -45,6 +45,8 @@ Usage:
             max recursion depth when retrieving files (default 3)
       -pass string
             NTLM pass
+      -domain string
+            NTLM domain
       -server string
             smb server (add multiple servers comma separated like 127.0.0.1,127.0.0.2
       -timeout int

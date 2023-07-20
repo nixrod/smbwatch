@@ -287,7 +287,7 @@ func smbSession(server, user, password, domain string) (net.Conn, *smb2.Session,
 		Initiator: &smb2.NTLMInitiator{
 			User:     user,
 			Password: password,
-			Domain:   domain
+			Domain:   domain,
 		},
 	}
 

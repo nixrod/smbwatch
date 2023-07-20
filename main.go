@@ -51,6 +51,7 @@ type Options struct {
 	Server     string
 	User       string
 	Pass       string
+	Domain     string
 	LdapServer string
 	LdapDn     string
 	LdapFilter string
@@ -68,6 +69,7 @@ func main() {
 	server := flag.String("server", "", "smb server (add multiple servers comma separated like 127.0.0.1,127.0.0.2")
 	user := flag.String("user", "", "NTLM user")
 	pass := flag.String("pass", "", "NTLM pass")
+	domain := flag.String("domain", "", "NTLM domain")
 	dbname := flag.String("dbname", "sqlite.db", "sqlite filename")
 	disableTui := flag.Bool("disableTui", false, "disable TUI")
 
@@ -121,6 +123,7 @@ func main() {
 		Server:            *server,
 		User:              *user,
 		Pass:              *pass,
+		Domain:            *domain,
 		LdapServer:        *ldapServer,
 		LdapDn:            *ldapDn,
 		LdapFilter:        *ldapFilter,
@@ -273,7 +276,7 @@ func start(options Options) {
 	log.Infof("finished all enumerations")
 }
 
-func smbSession(server, user, password string) (net.Conn, *smb2.Session, error) {
+func smbSession(server, user, password, domain string) (net.Conn, *smb2.Session, error) {
 	dialer := net.Dialer{Timeout: time.Duration(timeout) * time.Second}
 	conn, err := dialer.Dial("tcp", fmt.Sprintf("%v:445", server))
 	if err != nil {
@@ -284,6 +287,7 @@ func smbSession(server, user, password string) (net.Conn, *smb2.Session, error) 
 		Initiator: &smb2.NTLMInitiator{
 			User:     user,
 			Password: password,
+			Domain:   domain
 		},
 	}
 
@@ -404,7 +408,7 @@ func smbGetFiles(s *smb2.Session, serverName string, excludeShares, excludeExten
 func enumerateServer(server string, options Options, writer chan ShareFile) error {
 	var err error
 
-	conn, smbSession, err := smbSession(server, options.User, options.Pass)
+	conn, smbSession, err := smbSession(server, options.User, options.Pass, options.Domain)
 	if err != nil {
 		return fmt.Errorf("unable to connect to %v: %v", server, err)
 	}
